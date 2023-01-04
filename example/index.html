@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Proton_NIRVANA</title>
+    <style>
+        html, body {
+            width: 100%;
+            background-color: #2F4F4F;
+            color: white;
+        }
+
+        body {
+            padding: 12px;
+        }
+
+        h1 {
+            border-bottom: 1px solid white;
+        }
+
+        .info {
+            border-bottom: 1px solid white;
+        }
+
+        .info .label {
+            display: inline-block;
+            width: 100px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .info .value {
+            padding-left: 12px;
+        }
+    </style>
+</head>
+<body>
+<h1>Proton(Nirvana V0.0.1)</h1>
+<div class="info">
+    <p><span class="label">AppName:</span><span class="value">Proton(Nirvana)</span></p>
+    <p><span class="label">AppVersion:</span><span class="value">V0.0.1</span></p>
+    <p><span class="label">WebIndex:</span><span class="value">file:android_asset/index.html</span>
+    </p>
+</div>
+<p class="tips">如果你看到该页面，可能是由于未配置【WebIndex】配置项导致，请检查系统配置中的【WebIndex】配置是否正确</p>
+<div id="events">
+    <h2>EVENTS:</h2>
+</div>
+<!--<script src="../index.js"></script>-->
+<script src="index.js"></script>
+<script>
+    console.log('This is a simple log from web application!');
+    window.onload = function () {
+        function appendEvent(msg) {
+            var line = document.createElement('p');
+            line.innerText = msg;
+            document.getElementById('events').appendChild(line);
+        }
+
+        function eventCallback(msg) {
+            var msgJson = JSON.stringify(msg);
+            appendEvent(msgJson);
+        }
+
+        var sdk = new ProtonWebSdk({debug: true});
+        sdk.connect().then(res => {
+            console.log('SDK Connect success', res);
+            appendEvent('Connect success!');
+            var packet = new ProtonWebSdk.ProtonPacket()
+                .withAction('dau.get_all');
+            sdk.sendAction(packet).then(res => {
+                console.log('STATE:', JSON.stringify(res));
+            }).catch(err => {
+                console.log('ERROR', err);
+            });
+            sdk.subscribeAction('dau.state_event', 'V0.1', eventCallback);
+            sdk.subscribeAction('dau.weight_data_event', 'V0.1', eventCallback);
+            sdk.subscribeAction('dau.count_data_event', 'V0.1', eventCallback);
+            sdk.subscribeAction('proto_tiny.heartbeat', 'V0.1', eventCallback);
+        }).catch(err => {
+            console.log('SDK Connect error', err)
+            appendEvent('Connect Fail!');
+        });
+    };
+</script>
+</body>
+</html>
