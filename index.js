@@ -56,9 +56,11 @@
         },
         withPayload: function (payload) {
             this.payload = payload;
+            return this;
         },
         withExt: function (name, value) {
             this.ext[name] = value;
+            return this;
         },
         preSend: function () {
             this.header.timestamp = Utils.timestamp();
